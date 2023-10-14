@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * This class is the entrypoint for the /api/products/search API.  It is "annotated" with
@@ -86,8 +87,31 @@ public class SearchController {
         // This is a loop that the code inside will execute on each of the items from the database.
         for (ProductItem item : allItems) {
             // TODO: Figure out if the item should be returned based on the query parameter!
-            boolean matchesSearch = true;
-            itemList.add(item);
+            String name = item.getName();
+            String description = item.getDescription();
+            boolean isQuote = Pattern.matches("\\\"([^\\\"]*)\\\"", query);
+            if(isQuote) {
+                String temp = query.substring(1,query.length()-1);
+                if(temp.equals(name)) {
+                    itemList.add(item);
+                    continue;
+                }else if(temp.equals(description)){
+                    itemList.add(item);
+                    continue;
+                }
+                else {
+                    continue;
+                }
+            }
+            name = name.toLowerCase();
+            description = description.toLowerCase();
+            query = query.toLowerCase();
+
+            if(name.contains(query)) {
+                itemList.add(item);
+            } else if (description.contains(query)) {
+                itemList.add(item);
+            }
         }
         return itemList;
     }
